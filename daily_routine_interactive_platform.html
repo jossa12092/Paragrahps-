@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daily Routine Writing Platform</title>
+  <style>
+    :root {
+      --blue: #0f5f8f;
+      --blue-dark: #073b5f;
+      --soft-blue: #eaf6ff;
+      --green: #1f9d55;
+      --yellow: #d97706;
+      --red: #dc2626;
+      --text: #172033;
+      --muted: #64748b;
+      --border: #d8e3ec;
+      --bg: #f4faff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, #e8f7ff 0%, #f7fbff 52%, #edf9f1 100%);
+      color: var(--text);
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+
+    .app {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      padding: 14px;
+      padding-bottom: 92px;
+    }
+
+    .topbar {
+      background: white;
+      border: 2px solid #a9d5ef;
+      border-radius: 22px;
+      padding: 14px 16px;
+      box-shadow: 0 10px 24px rgba(15, 95, 143, 0.12);
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      color: var(--blue-dark);
+      font-size: clamp(1.55rem, 4vw, 2.6rem);
+      line-height: 1.05;
+    }
+
+    .title-block p {
+      margin: 4px 0 0;
+      color: #475569;
+      font-size: clamp(0.95rem, 2.4vw, 1.1rem);
+      line-height: 1.25;
+    }
+
+    .score-pill {
+      flex: 0 0 auto;
+      min-width: 92px;
+      text-align: center;
+      background: var(--blue);
+      color: white;
+      border-radius: 18px;
+      padding: 10px 12px;
+      box-shadow: 0 8px 18px rgba(15, 95, 143, 0.22);
+    }
+
+    .score-pill .score {
+      display: block;
+      font-size: 2rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .score-pill .label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      opacity: 0.95;
+      margin-top: 3px;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 330px;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .writing-card,
+    .side-card,
+    details {
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: 22px;
+      box-shadow: 0 10px 22px rgba(23, 32, 51, 0.07);
+    }
+
+    .writing-card {
+      padding: 14px;
+    }
+
+    .student-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      margin: 0 0 6px;
+      font-size: 1rem;
+      font-weight: 900;
+      color: var(--blue-dark);
+    }
+
+    input {
+      width: 100%;
+      border: 2px solid #a9d5ef;
+      border-radius: 16px;
+      padding: 13px 14px;
+      font-size: 1rem;
+      outline: none;
+      background: #fcfeff;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px rgba(15, 95, 143, 0.12);
+    }
+
+    .word-chip {
+      background: #f1f8fd;
+      color: var(--blue-dark);
+      border: 1px solid #bfe0f3;
+      border-radius: 16px;
+      padding: 11px 14px;
+      font-weight: 900;
+      white-space: nowrap;
+      font-size: 0.98rem;
+    }
+
+    .writing-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .writing-hint {
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 62vh;
+      resize: vertical;
+      border: 3px solid #9bc9e8;
+      border-radius: 20px;
+      padding: 18px;
+      font-size: 1.22rem;
+      line-height: 1.48;
+      outline: none;
+      color: #111827;
+      background: #fcfeff;
+    }
+
+    textarea::placeholder {
+      color: #8a98a8;
+    }
+
+    .blocked-note {
+      display: none;
+      margin-top: 10px;
+      background: #fff1f1;
+      color: #991b1b;
+      border: 1px solid #ffc3c3;
+      border-radius: 14px;
+      padding: 11px 13px;
+      font-weight: 800;
+      line-height: 1.3;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    button {
+      border: none;
+      border-radius: 16px;
+      padding: 13px 15px;
+      font-size: 0.98rem;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .primary {
+      background: var(--blue);
+      color: white;
+    }
+
+    .secondary {
+      background: #e2e8f0;
+      color: #1f2937;
+    }
+
+    .danger {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .side-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .side-card {
+      padding: 14px;
+    }
+
+    .side-card h2,
+    details summary {
+      margin: 0;
+      color: var(--blue-dark);
+      font-size: 1.2rem;
+      font-weight: 900;
+    }
+
+    .quick-status {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+      margin-top: 12px;
+    }
+
+    .metric {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 10px;
+    }
+
+    .metric .number {
+      color: var(--blue-dark);
+      font-size: 1.45rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .metric .name {
+      color: var(--muted);
+      font-size: 0.82rem;
+      margin-top: 4px;
+      font-weight: 700;
+    }
+
+    .score-message {
+      margin: 12px 0 0;
+      color: #475569;
+      line-height: 1.35;
+      font-weight: 700;
+    }
+
+    details {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    details summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 15px 16px;
+      background: #fbfdff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    details summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details summary::after {
+      content: "+";
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--soft-blue);
+      color: var(--blue-dark);
+      font-size: 1.4rem;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    details[open] summary::after {
+      content: "−";
+    }
+
+    .details-content {
+      padding: 0 16px 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .tip {
+      border-radius: 14px;
+      border: 1px solid #cde6f5;
+      background: #f3faff;
+      padding: 11px 12px;
+      line-height: 1.32;
+      font-size: 0.95rem;
+    }
+
+    .feedback-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .feedback {
+      border-radius: 14px;
+      padding: 11px 12px;
+      border: 1px solid var(--border);
+      line-height: 1.32;
+      font-size: 0.94rem;
+      font-weight: 700;
+    }
+
+    .feedback.good {
+      background: #eaf9f0;
+      border-color: #b7e8c5;
+      color: #14532d;
+    }
+
+    .feedback.warning {
+      background: #fff7e6;
+      border-color: #ffd58a;
+      color: #7c4a03;
+    }
+
+    .feedback.bad {
+      background: #fff0f0;
+      border-color: #ffc4c4;
+      color: #8b1a1a;
+    }
+
+    .rubric {
+      display: grid;
+      gap: 9px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 92px 1fr 42px;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.88rem;
+      font-weight: 800;
+    }
+
+    .bar-bg {
+      background: #e5e7eb;
+      height: 12px;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--blue);
+      border-radius: 999px;
+      transition: width 0.25s ease;
+    }
+
+    .risk-low { color: var(--green); font-weight: 900; }
+    .risk-medium { color: var(--yellow); font-weight: 900; }
+    .risk-high { color: var(--red); font-weight: 900; }
+
+    .bottom-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.96);
+      border-top: 2px solid #cfe2ef;
+      box-shadow: 0 -8px 22px rgba(23, 32, 51, 0.12);
+      padding: 10px 12px;
+      display: none;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .bottom-grade {
+      background: var(--blue);
+      color: white;
+      border-radius: 15px;
+      padding: 9px 12px;
+      min-width: 78px;
+      text-align: center;
+      font-weight: 900;
+    }
+
+    .bottom-grade span {
+      display: block;
+      font-size: 1.55rem;
+      line-height: 1;
+    }
+
+    .bottom-bar button {
+      flex: 1;
+      padding: 12px 10px;
+      font-size: 0.94rem;
+    }
+
+    @media (max-width: 860px) {
+      .app {
+        padding: 10px;
+        padding-bottom: 96px;
+      }
+
+      .topbar {
+        border-radius: 18px;
+        padding: 12px;
+        align-items: flex-start;
+      }
+
+      .topbar .score-pill {
+        display: none;
+      }
+
+      .title-block h1 {
+        font-size: 1.65rem;
+      }
+
+      .title-block p {
+        font-size: 0.95rem;
+      }
+
+      .main-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .writing-card {
+        padding: 11px;
+        border-radius: 18px;
+      }
+
+      .student-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .word-chip {
+        width: fit-content;
+        padding: 9px 12px;
+      }
+
+      .writing-label-row {
+        align-items: flex-start;
+      }
+
+      .writing-hint {
+        font-size: 0.8rem;
+      }
+
+      textarea {
+        min-height: 64vh;
+        font-size: 1.08rem;
+        line-height: 1.45;
+        padding: 14px;
+        border-radius: 17px;
+      }
+
+      .button-row {
+        display: none;
+      }
+
+      .side-card {
+        display: none;
+      }
+
+      .bottom-bar {
+        display: flex;
+      }
+
+      details summary {
+        padding: 14px;
+        font-size: 1.05rem;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .app {
+        padding: 8px;
+        padding-bottom: 96px;
+      }
+
+      .topbar {
+        margin-bottom: 10px;
+      }
+
+      textarea {
+        min-height: 67vh;
+        font-size: 1.04rem;
+        padding: 13px;
+      }
+
+      input {
+        padding: 12px;
+      }
+
+      .bottom-bar {
+        padding: 8px;
+      }
+
+      .bottom-grade {
+        min-width: 70px;
+        padding: 8px 9px;
+      }
+
+      .bottom-grade span {
+        font-size: 1.35rem;
+      }
+    }
+
+    @media print {
+      .bottom-bar, .button-row {
+        display: none !important;
+      }
+
+      .app {
+        padding-bottom: 0;
+      }
+
+      textarea {
+        min-height: 320px;
+      }
+
+      .side-card {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="title-block">
+        <h1>My Daily Routine</h1>
+        <p>Write one clear paragraph. The platform checks grammar, connectors, punctuation, coherence, and originality signs.</p>
+      </div>
+      <div class="score-pill" aria-label="Current grade">
+        <span class="score" id="scoreValue">0.0</span>
+        <span class="label">/ 5.0</span>
+      </div>
+    </header>
+
+    <section class="main-grid">
+      <section class="writing-card">
+        <div class="student-row">
+          <div>
+            <label for="studentName">Student name</label>
+            <input id="studentName" type="text" placeholder="Write your name" autocomplete="off" />
+          </div>
+          <div class="word-chip"><span id="wordCount">0</span> words</div>
+        </div>
+
+        <div class="writing-label-row">
+          <label for="writingBox">Write your paragraph here</label>
+          <div class="writing-hint">Recommended: 80–120 words</div>
+        </div>
+
+        <textarea id="writingBox" placeholder="First, I usually wake up at 6:00 a.m. Then, I take a shower..."></textarea>
+        <div id="blockedNote" class="blocked-note">Paste, drop, right click, copy and cut are blocked. Please write your paragraph directly.</div>
+
+        <div class="button-row">
+          <button class="primary" id="gradeBtn">Grade my paragraph</button>
+          <button class="secondary" id="printBtn">Print / Save report</button>
+          <button class="danger" id="resetBtn">Reset</button>
+        </div>
+      </section>
+
+      <aside class="side-stack">
+        <section class="side-card">
+          <h2>Quick feedback</h2>
+          <div class="quick-status">
+            <div class="metric"><div class="number" id="sentenceCount">0</div><div class="name">Sentences</div></div>
+            <div class="metric"><div class="number" id="connectorCount">0</div><div class="name">Connectors</div></div>
+            <div class="metric"><div class="number" id="frequencyCount">0</div><div class="name">Frequency words</div></div>
+            <div class="metric"><div class="number" id="errorCount">0</div><div class="name">Possible issues</div></div>
+          </div>
+          <p class="score-message" id="scoreLabel">Start writing to receive feedback.</p>
+        </section>
+
+        <details>
+          <summary>Writing guide</summary>
+          <div class="details-content">
+            <div class="tip"><strong>Start:</strong> First, I usually wake up at...</div>
+            <div class="tip"><strong>Sequence:</strong> Then, Next, After that, Before..., Finally.</div>
+            <div class="tip"><strong>Actions:</strong> wake up, brush my teeth, take a shower, get dressed, have breakfast, study, work, relax, go to bed.</div>
+            <div class="tip"><strong>Frequency:</strong> always, usually, often, sometimes, rarely, never.</div>
+            <div class="tip"><strong>Punctuation:</strong> use a comma after First, Then, Next, After that and Finally.</div>
+          </div>
+        </details>
+
+        <details>
+          <summary>Detailed feedback</summary>
+          <div class="details-content">
+            <div class="feedback-list" id="feedbackList"></div>
+          </div>
+        </details>
+
+        <details>
+          <summary>Rubric</summary>
+          <div class="details-content">
+            <div class="rubric" id="rubric"></div>
+          </div>
+        </details>
+
+        <details>
+          <summary>Originality signs</summary>
+          <div class="details-content">
+            <div class="tip" id="integrityText">Risk level: <span class="risk-low">Low</span></div>
+            <div class="tip" id="integrityDetails">No suspicious writing actions detected yet.</div>
+            <div class="tip"><strong>Important:</strong> this platform cannot prove with 100% certainty that a text was generated by AI. It only shows alerts based on paste attempts, sudden text insertion, writing speed and similarity with model examples.</div>
+          </div>
+        </details>
+      </aside>
+    </section>
+  </main>
+
+  <nav class="bottom-bar" aria-label="Mobile actions">
+    <div class="bottom-grade"><span id="mobileScoreValue">0.0</span>/5</div>
+    <button class="primary" id="mobileGradeBtn">Grade</button>
+    <button class="secondary" id="mobilePrintBtn">Save</button>
+    <button class="danger" id="mobileResetBtn">Reset</button>
+  </nav>
+
+  <script>
+    const writingBox = document.getElementById('writingBox');
+    const studentName = document.getElementById('studentName');
+    const feedbackList = document.getElementById('feedbackList');
+    const rubricBox = document.getElementById('rubric');
+    const scoreValue = document.getElementById('scoreValue');
+    const mobileScoreValue = document.getElementById('mobileScoreValue');
+    const scoreLabel = document.getElementById('scoreLabel');
+    const blockedNote = document.getElementById('blockedNote');
+
+    const wordCountEl = document.getElementById('wordCount');
+    const sentenceCountEl = document.getElementById('sentenceCount');
+    const connectorCountEl = document.getElementById('connectorCount');
+    const frequencyCountEl = document.getElementById('frequencyCount');
+    const errorCountEl = document.getElementById('errorCount');
+    const integrityText = document.getElementById('integrityText');
+    const integrityDetails = document.getElementById('integrityDetails');
+
+    const modelExamples = [
+      "First, I usually wake up at 6:00 a.m. Next, I take a shower and get dressed. Then, I always have breakfast at home. After that, I go to university in the morning. In the afternoon, I sometimes study English. Before dinner, I do my homework. Finally, I go to bed at 10:00 p.m.",
+      "First I wake up at 8:00 a.m. Then, I check social media. I usually go for a run with my dog. Next, I have breakfast; I often have coffee and toast. After that, I start work on my computer. Before lunch, I have a short meeting. Sometimes I code with my team in the afternoon. Finally, I go home and relax.",
+      "First, I wake up at 10:00 a.m. and I always brush my teeth. Next, I take a shower. Then, I get dressed. After that, I have coffee and I usually do yoga because it helps me relax. Before I start my day, I sometimes read a few pages. I also stretch for a minute. Finally, I begin my day."
+    ];
+
+    const connectors = [
+      'first', 'then', 'next', 'after that', 'before', 'finally', 'later', 'in the morning', 'in the afternoon', 'in the evening', 'at night'
+    ];
+
+    const routineVerbs = [
+      'wake up', 'get up', 'brush', 'brush my teeth', 'take a shower', 'get dressed', 'have breakfast', 'eat', 'drink', 'go to', 'study', 'work', 'do homework', 'read', 'write', 'listen', 'watch', 'cook', 'clean', 'exercise', 'run', 'walk', 'relax', 'sleep', 'go to bed', 'start', 'finish'
+    ];
+
+    const frequencyAdverbs = ['always', 'usually', 'often', 'sometimes', 'rarely', 'never'];
+
+    const commonMistakes = [
+      { pattern: /\bi wakes\b/gi, message: "Use 'I wake up', not 'I wakes'." },
+      { pattern: /\bi goes\b/gi, message: "Use 'I go', not 'I goes'." },
+      { pattern: /\bi has\b/gi, message: "Use 'I have', not 'I has'." },
+      { pattern: /\bi takes\b/gi, message: "Use 'I take', not 'I takes'." },
+      { pattern: /\bi brushes\b/gi, message: "Use 'I brush', not 'I brushes'." },
+      { pattern: /\bi gets\b/gi, message: "Use 'I get', not 'I gets'." },
+      { pattern: /\bi am wake\b/gi, message: "Use 'I wake up', not 'I am wake'." },
+      { pattern: /\bi am go\b/gi, message: "Use 'I go', not 'I am go'." },
+      { pattern: /\bi am take\b/gi, message: "Use 'I take', not 'I am take'." },
+      { pattern: /\bi have breakfast at the morning\b/gi, message: "Use 'in the morning', not 'at the morning'." },
+      { pattern: /\bin the night\b/gi, message: "Use 'at night', not 'in the night'." },
+      { pattern: /\bevery days\b/gi, message: "Use 'every day', not 'every days'." },
+      { pattern: /\bhomeworkes\b/gi, message: "Use 'homework'. It is uncountable." },
+      { pattern: /\bmy tooth\b/gi, message: "Use 'my teeth' when you talk about brushing." }
+    ];
+
+    const typingStats = {
+      startTime: null,
+      lastInputTime: null,
+      typedCharacters: 0,
+      pasteAttempts: 0,
+      dropAttempts: 0,
+      suspiciousInsertions: 0,
+      blockedShortcuts: 0,
+      maxInstantInsertion: 0,
+      previousLength: 0
+    };
+
+    function normalizeText(text) {
+      return text
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function getWords(text) {
+      const normalized = normalizeText(text);
+      if (!normalized) return [];
+      return normalized.split(' ').filter(Boolean);
+    }
+
+    function unique(arr) {
+      return [...new Set(arr)];
+    }
+
+    function jaccardSimilarity(a, b) {
+      const wordsA = unique(getWords(a));
+      const wordsB = unique(getWords(b));
+      if (!wordsA.length || !wordsB.length) return 0;
+      const setA = new Set(wordsA);
+      const setB = new Set(wordsB);
+      let intersection = 0;
+      setA.forEach(word => { if (setB.has(word)) intersection++; });
+      const union = new Set([...wordsA, ...wordsB]).size;
+      return intersection / union;
+    }
+
+    function countMatches(text, list) {
+      const lower = text.toLowerCase();
+      return list.filter(item => lower.includes(item)).length;
+    }
+
+    function splitSentences(text) {
+      return text
+        .split(/[.!?]+/)
+        .map(sentence => sentence.trim())
+        .filter(sentence => sentence.length > 0);
+    }
+
+    function hasConnectorCommaIssue(text) {
+      const patterns = [
+        /\bfirst\s+(?!,)/i,
+        /\bthen\s+(?!,)/i,
+        /\bnext\s+(?!,)/i,
+        /\bafter that\s+(?!,)/i,
+        /\bfinally\s+(?!,)/i
+      ];
+      return patterns.filter(pattern => pattern.test(text)).length;
+    }
+
+    function capitalIssueCount(text) {
+      const sentences = splitSentences(text);
+      let issues = 0;
+      sentences.forEach(sentence => {
+        const firstLetter = sentence.match(/[a-zA-Z]/);
+        if (firstLetter && firstLetter[0] !== firstLetter[0].toUpperCase()) issues++;
+      });
+      return issues;
+    }
+
+    function repeatedWordCount(text) {
+      const words = getWords(text);
+      let count = 0;
+      for (let i = 1; i < words.length; i++) {
+        if (words[i] === words[i - 1]) count++;
+      }
+      return count;
+    }
+
+    function countCommonMistakes(text) {
+      const found = [];
+      commonMistakes.forEach(item => {
+        if (item.pattern.test(text)) found.push(item.message);
+        item.pattern.lastIndex = 0;
+      });
+      return unique(found);
+    }
+
+    function detectSpanishSupport(text) {
+      const spanishWords = ['me levanto', 'desayuno', 'almuerzo', 'duermo', 'voy a', 'universidad', 'colegio', 'tarea', 'después', 'finalmente', 'siempre'];
+      const lower = text.toLowerCase();
+      return spanishWords.filter(word => lower.includes(word)).length;
+    }
+
+    function calculateAnalysis(text) {
+      const trimmed = text.trim();
+      const words = getWords(trimmed);
+      const wordCount = words.length;
+      const sentences = splitSentences(trimmed);
+      const sentenceCount = sentences.length;
+      const connectorCount = countMatches(trimmed, connectors);
+      const routineCount = countMatches(trimmed, routineVerbs);
+      const frequencyCount = countMatches(trimmed, frequencyAdverbs);
+      const mistakeMessages = countCommonMistakes(trimmed);
+      const commaIssues = hasConnectorCommaIssue(trimmed);
+      const capitalIssues = capitalIssueCount(trimmed);
+      const repeatedWords = repeatedWordCount(trimmed);
+      const spanishCount = detectSpanishSupport(trimmed);
+      const hasFinalPunctuation = /[.!?]\s*$/.test(trimmed);
+      const hasFirstPerson = /\bi\b/i.test(trimmed);
+      const tooManyAnds = (trimmed.match(/\band\b/gi) || []).length > Math.max(4, sentenceCount * 1.5);
+
+      let bestSimilarity = 0;
+      modelExamples.forEach(example => {
+        bestSimilarity = Math.max(bestSimilarity, jaccardSimilarity(trimmed, example));
+      });
+
+      const lengthScore = Math.min(1, wordCount / 90);
+      const sentenceScore = Math.min(1, sentenceCount / 6);
+      const structureScore = Math.min(1, (lengthScore * 0.55) + (sentenceScore * 0.45));
+      const connectorScore = Math.min(1, connectorCount / 5);
+      const vocabularyScore = Math.min(1, (routineCount / 8) * 0.75 + (frequencyCount / 3) * 0.25);
+      const punctuationPenalty = Math.min(1, (commaIssues + capitalIssues + (hasFinalPunctuation ? 0 : 1)) / 6);
+      const punctuationScore = Math.max(0, 1 - punctuationPenalty);
+      const grammarPenalty = Math.min(1, (mistakeMessages.length + repeatedWords + spanishCount + (hasFirstPerson ? 0 : 1) + (tooManyAnds ? 1 : 0)) / 8);
+      const grammarScore = Math.max(0, 1 - grammarPenalty);
+      const orderMarkers = ['morning', 'afternoon', 'evening', 'night', 'before', 'after', 'finally'];
+      const orderCount = countMatches(trimmed, orderMarkers);
+      const coherenceScore = Math.min(1, (connectorCount / 5) * 0.55 + (orderCount / 4) * 0.45);
+
+      const weightedScore =
+        structureScore * 1.00 +
+        connectorScore * 0.80 +
+        vocabularyScore * 0.85 +
+        grammarScore * 1.20 +
+        coherenceScore * 0.70 +
+        punctuationScore * 0.45;
+
+      let grade = Math.max(0, Math.min(5, weightedScore));
+
+      if (wordCount < 20) grade = Math.min(grade, 1.6);
+      if (wordCount >= 20 && wordCount < 45) grade = Math.min(grade, 3.2);
+      if (bestSimilarity > 0.52) grade = Math.min(grade, 3.2);
+      if (typingStats.pasteAttempts > 0 || typingStats.suspiciousInsertions > 1) grade = Math.min(grade, 3.5);
+
+      const issueCount = mistakeMessages.length + commaIssues + capitalIssues + repeatedWords + spanishCount + (hasFinalPunctuation ? 0 : 1) + (tooManyAnds ? 1 : 0);
+
+      return {
+        wordCount,
+        sentenceCount,
+        connectorCount,
+        frequencyCount,
+        routineCount,
+        mistakeMessages,
+        commaIssues,
+        capitalIssues,
+        repeatedWords,
+        spanishCount,
+        hasFinalPunctuation,
+        hasFirstPerson,
+        tooManyAnds,
+        bestSimilarity,
+        issueCount,
+        scores: {
+          structure: structureScore,
+          connectors: connectorScore,
+          vocabulary: vocabularyScore,
+          grammar: grammarScore,
+          coherence: coherenceScore,
+          punctuation: punctuationScore
+        },
+        grade: Number(grade.toFixed(1))
+      };
+    }
+
+    function addFeedback(type, text) {
+      const div = document.createElement('div');
+      div.className = `feedback ${type}`;
+      div.textContent = text;
+      feedbackList.appendChild(div);
+    }
+
+    function updateRubric(scores) {
+      const labels = {
+        structure: 'Structure',
+        connectors: 'Connectors',
+        vocabulary: 'Vocabulary',
+        grammar: 'Grammar',
+        coherence: 'Coherence',
+        punctuation: 'Punctuation'
+      };
+      rubricBox.innerHTML = '';
+      Object.entries(scores).forEach(([key, value]) => {
+        const percent = Math.round(value * 100);
+        const row = document.createElement('div');
+        row.className = 'bar-row';
+        row.innerHTML = `
+          <strong>${labels[key]}</strong>
+          <div class="bar-bg"><div class="bar-fill" style="width:${percent}%"></div></div>
+          <span>${percent}%</span>
+        `;
+        rubricBox.appendChild(row);
+      });
+    }
+
+    function updateIntegrity(analysis) {
+      const now = Date.now();
+      const elapsedMinutes = typingStats.startTime ? Math.max(0.1, (now - typingStats.startTime) / 60000) : 0.1;
+      const charsPerMinute = Math.round((writingBox.value.length || 0) / elapsedMinutes);
+
+      let riskPoints = 0;
+      const details = [];
+
+      if (typingStats.pasteAttempts > 0) {
+        riskPoints += 3;
+        details.push(`Paste attempts blocked: ${typingStats.pasteAttempts}.`);
+      }
+
+      if (typingStats.dropAttempts > 0) {
+        riskPoints += 2;
+        details.push(`Drop attempts blocked: ${typingStats.dropAttempts}.`);
+      }
+
+      if (typingStats.suspiciousInsertions > 0) {
+        riskPoints += 2;
+        details.push(`Sudden text insertions detected: ${typingStats.suspiciousInsertions}.`);
+      }
+
+      if (typingStats.maxInstantInsertion > 12) {
+        riskPoints += 2;
+        details.push(`Largest instant insertion: ${typingStats.maxInstantInsertion} characters.`);
+      }
+
+      if (charsPerMinute > 850 && analysis.wordCount > 50) {
+        riskPoints += 2;
+        details.push(`Very high writing speed: about ${charsPerMinute} characters per minute.`);
+      }
+
+      if (analysis.bestSimilarity > 0.42) {
+        riskPoints += 2;
+        details.push(`Similarity with a model example: ${Math.round(analysis.bestSimilarity * 100)}%.`);
+      }
+
+      let level = 'Low';
+      let className = 'risk-low';
+      if (riskPoints >= 4 && riskPoints < 7) {
+        level = 'Medium';
+        className = 'risk-medium';
+      } else if (riskPoints >= 7) {
+        level = 'High';
+        className = 'risk-high';
+      }
+
+      integrityText.innerHTML = `Risk level: <span class="${className}">${level}</span>`;
+      integrityDetails.textContent = details.length ? details.join(' ') : 'No suspicious writing actions detected yet.';
+    }
+
+    function updateFeedback() {
+      const text = writingBox.value;
+      const analysis = calculateAnalysis(text);
+
+      wordCountEl.textContent = analysis.wordCount;
+      sentenceCountEl.textContent = analysis.sentenceCount;
+      connectorCountEl.textContent = analysis.connectorCount;
+      frequencyCountEl.textContent = analysis.frequencyCount;
+      errorCountEl.textContent = analysis.issueCount;
+      scoreValue.textContent = analysis.grade.toFixed(1);
+      mobileScoreValue.textContent = analysis.grade.toFixed(1);
+
+      if (analysis.grade >= 4.5) {
+        scoreLabel.textContent = 'Excellent paragraph. It is organized, clear, and grammatically strong.';
+      } else if (analysis.grade >= 3.8) {
+        scoreLabel.textContent = 'Good paragraph. Check small details in punctuation, grammar, or connectors.';
+      } else if (analysis.grade >= 3.0) {
+        scoreLabel.textContent = 'Acceptable paragraph. It needs more development, better sequence, or grammar correction.';
+      } else if (analysis.wordCount > 0) {
+        scoreLabel.textContent = 'Your paragraph is still incomplete. Add more routine actions, connectors, and correct sentences.';
+      } else {
+        scoreLabel.textContent = 'Start writing to receive feedback.';
+      }
+
+      feedbackList.innerHTML = '';
+
+      if (analysis.wordCount === 0) {
+        addFeedback('warning', 'Start with: First, I usually wake up at...');
+      } else {
+        if (analysis.wordCount >= 80) addFeedback('good', 'Good development: your paragraph has enough words for a complete routine.');
+        else addFeedback('warning', 'Add more information. Try to write 80 to 120 words for a complete paragraph.');
+
+        if (analysis.sentenceCount >= 6) addFeedback('good', 'Good structure: you are using several sentences.');
+        else addFeedback('warning', 'Use more sentences. A good routine paragraph usually has at least 6 sentences.');
+
+        if (analysis.connectorCount >= 5) addFeedback('good', 'Good sequence: you are using several connectors.');
+        else addFeedback('warning', 'Add more connectors: First, Then, Next, After that, Before..., Finally.');
+
+        if (analysis.routineCount >= 8) addFeedback('good', 'Good vocabulary: your text includes many daily routine actions.');
+        else addFeedback('warning', 'Add more daily routine verbs: wake up, take a shower, get dressed, have breakfast, study, work, do homework, go to bed.');
+
+        if (analysis.frequencyCount >= 3) addFeedback('good', 'Good use of frequency adverbs.');
+        else addFeedback('warning', 'Add frequency words: always, usually, often, sometimes, never.');
+
+        if (!analysis.hasFirstPerson) addFeedback('bad', "Use first person for your own routine: I wake up, I study, I go to bed.");
+
+        if (analysis.mistakeMessages.length) {
+          analysis.mistakeMessages.forEach(msg => addFeedback('bad', msg));
+        } else {
+          addFeedback('good', 'No common present simple mistake detected with “I + verb”.');
+        }
+
+        if (analysis.commaIssues > 0) addFeedback('warning', 'Remember to use a comma after sequence connectors: First, Then, Next, After that, Finally.');
+        else if (analysis.connectorCount > 0) addFeedback('good', 'Good punctuation with sequence connectors.');
+
+        if (analysis.capitalIssues > 0) addFeedback('warning', 'Start each sentence with a capital letter.');
+        if (!analysis.hasFinalPunctuation) addFeedback('warning', 'End your paragraph with a period.');
+        if (analysis.repeatedWords > 0) addFeedback('warning', 'Check repeated words. Avoid writing the same word twice in a row.');
+        if (analysis.spanishCount > 0) addFeedback('warning', 'Some Spanish words or expressions may appear. Try to write the paragraph fully in English.');
+        if (analysis.tooManyAnds) addFeedback('warning', 'Avoid using too many “and”. Use periods and connectors to organize your ideas.');
+
+        if (analysis.bestSimilarity > 0.55) addFeedback('bad', 'Your text is very similar to one model example. Change the ideas and write your own real routine.');
+        else if (analysis.bestSimilarity > 0.42) addFeedback('warning', 'Your text has some similarity with a model example. Try to personalize it more.');
+      }
+
+      updateRubric(analysis.scores);
+      updateIntegrity(analysis);
+    }
+
+    function showBlockedNote() {
+      blockedNote.style.display = 'block';
+      clearTimeout(showBlockedNote.timer);
+      showBlockedNote.timer = setTimeout(() => {
+        blockedNote.style.display = 'none';
+      }, 3200);
+    }
+
+    function blockEvent(event) {
+      event.preventDefault();
+      showBlockedNote();
+    }
+
+    writingBox.addEventListener('paste', event => {
+      typingStats.pasteAttempts++;
+      blockEvent(event);
+      updateFeedback();
+    });
+
+    writingBox.addEventListener('drop', event => {
+      typingStats.dropAttempts++;
+      blockEvent(event);
+      updateFeedback();
+    });
+
+    writingBox.addEventListener('contextmenu', blockEvent);
+    writingBox.addEventListener('copy', blockEvent);
+    writingBox.addEventListener('cut', blockEvent);
+
+    writingBox.addEventListener('keydown', event => {
+      const key = event.key.toLowerCase();
+      const blockedCombo = (event.ctrlKey || event.metaKey) && ['v', 'c', 'x', 'a', 's', 'p'].includes(key);
+      const shiftInsert = event.shiftKey && key === 'insert';
+      if (blockedCombo || shiftInsert) {
+        typingStats.blockedShortcuts++;
+        blockEvent(event);
+        updateFeedback();
+      }
+    });
+
+    writingBox.addEventListener('beforeinput', event => {
+      if (['insertFromPaste', 'insertFromDrop', 'insertReplacementText'].includes(event.inputType)) {
+        typingStats.pasteAttempts++;
+        blockEvent(event);
+        updateFeedback();
+      }
+    });
+
+    writingBox.addEventListener('input', () => {
+      const currentLength = writingBox.value.length;
+      const diff = currentLength - typingStats.previousLength;
+      const now = Date.now();
+
+      if (!typingStats.startTime && currentLength > 0) typingStats.startTime = now;
+
+      if (diff > 1) {
+        typingStats.maxInstantInsertion = Math.max(typingStats.maxInstantInsertion, diff);
+        if (diff > 8) typingStats.suspiciousInsertions++;
+      }
+
+      if (diff > 0) typingStats.typedCharacters += diff;
+      typingStats.previousLength = currentLength;
+      typingStats.lastInputTime = now;
+      updateFeedback();
+    });
+
+    function gradeNow() {
+      updateFeedback();
+      const analysis = calculateAnalysis(writingBox.value);
+      alert(`Final grade: ${analysis.grade.toFixed(1)} / 5.0`);
+    }
+
+    function resetAll() {
+      if (!confirm('Do you want to reset the paragraph and the writing process data?')) return;
+      writingBox.value = '';
+      studentName.value = '';
+      Object.keys(typingStats).forEach(key => {
+        typingStats[key] = 0;
+      });
+      typingStats.startTime = null;
+      typingStats.lastInputTime = null;
+      typingStats.previousLength = 0;
+      updateFeedback();
+    }
+
+    document.getElementById('gradeBtn').addEventListener('click', gradeNow);
+    document.getElementById('mobileGradeBtn').addEventListener('click', gradeNow);
+
+    document.getElementById('printBtn').addEventListener('click', () => {
+      updateFeedback();
+      window.print();
+    });
+
+    document.getElementById('mobilePrintBtn').addEventListener('click', () => {
+      updateFeedback();
+      window.print();
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', resetAll);
+    document.getElementById('mobileResetBtn').addEventListener('click', resetAll);
+
+    updateFeedback();
+  </script>
+</body>
+</html>
